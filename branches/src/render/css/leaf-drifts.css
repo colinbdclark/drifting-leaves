@@ -1,0 +1,16 @@
+body {
+    color: #fff;
+    font-family: sans-serif;
+}
+
+#network-interfaces {
+    font-family: monospace
+}
+
+.template {
+    display: none;
+}
+
+.leaf {
+    display: grid;
+}

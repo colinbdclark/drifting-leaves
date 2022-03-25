@@ -1,0 +1,19 @@
+{
+    "name": "drifting-leaves",
+    "productName": "Drifting Leaves",
+    "version": "0.0.1",
+    "author": "Colin Clark",
+    "main": "main.js",
+    "dependencies": {
+        "infusion": "4.0.0-dev.20211216T153607Z.0104629aa",
+        "infusion-electron": "0.9.0",
+        "osc": "2.4.2"
+    },
+    "devDependencies": {
+        "electron": "17.1.0",
+        "electron-packager": "15.4.0"
+    },
+    "scripts": {
+        "app": "node_modules/.bin/electron ."
+    }
+}

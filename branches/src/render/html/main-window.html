@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Drifting Leaves</title>
+
+        <link href="../css/leaf-drifts.css" rel="stylesheet">
+
+        <script src="../third-party/webaudio-controls.js"></script>
+        <script src="../../../node_modules/infusion-electron/src/renderer-process/namespace-electron-globals.js"></script>
+        <script src="../../../node_modules/infusion/dist/infusion-framework.js"></script>
+        <script src="../js/drifting-leaves-branches.js"></script>
+    </head>
+    <body>
+        <div id="server-view">
+            <div id="network-interfaces">
+                <div id="net-interfaces-template"
+                    class="net-interfaces template">
+                    <span class="ip-address"></span>:<span class="port"></span>
+                </div>
+            </div>
+
+            <div id="leaves">
+                <div id="leaf-template" class="leaf template">
+                    <h2 class="leaf-name"></h2>
+                    <div id="leaf-axis-template"
+                        class="leaf-axis template">
+                        <span class="leaf-axis-label"></span>
+                        <span class="leaf-axis-value"></span>
+                        <webaudio-knob class="leaf-axis-scale" min="-1.0" max="1.0" value="1.0" step="0.001" tooltip="Scale"></webaudio-knob>
+                        <webaudio-knob class="leaf-axis-offset" min="-1.0" max="1.0" value="0" step="0.001" tooltip="Offset"></webaudio-knob>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            let branches = driftingLeaves.branches();
+            branches.oscServer.oscPort.open();
+        </script>
+    </body>
+</html>
