@@ -4,8 +4,21 @@
 #include <OSCMessage.h>
 #include "arduino_secrets.h"
 
+struct TriAxisState {
+    float x;
+    float y;
+    float z;
+};
+
+struct AccelerometerState {
+    struct TriAxisState raw;
+    struct TriAxisState linear;
+    struct TriAxisState gravity;
+};
+
 unsigned int FREQUENCY = 10;
 unsigned int MESSAGE_DELAY_TIME = 1000 / FREQUENCY;
+float gravityCoeff = 0.8f;
 
 char wifiSSID[] = SECRET_WIFI_SSID;
 char wifiPassword[] = SECRET_WIFI_PASSWORD;
@@ -18,6 +31,43 @@ const char oscAddress[] = "/accel";
 String macAddress;
 
 WiFiUDP udp;
+
+struct AccelerometerState accelState = {
+    .raw = {
+        .x = 0.0f,
+        .y = 0.0f,
+        .z = 0.0f
+    },
+
+    .linear = {
+        .x = 0.0f,
+        .y = 0.0f,
+        .z = 0.0f
+    },
+
+    .gravity = {
+        .x = 0.0f,
+        .y = 0.0f,
+        .z = 0.0f
+    }
+};
+
+float gravityLowPass(float raw, float previousGravity, float coeff) {
+    return coeff * previousGravity + (1.0f - coeff) * raw;
+}
+
+void updateGravity(struct AccelerometerState* state, float coeff) {
+    state->gravity.x = gravityLowPass(state->raw.x, state->gravity.x, coeff);
+    state->gravity.y = gravityLowPass(state->raw.y, state->gravity.y, coeff);
+    state->gravity.z = gravityLowPass(state->raw.z, state->gravity.z, coeff);
+}
+
+void updateLinearValues(struct AccelerometerState* state, float coeff) {
+    updateGravity(state, coeff);
+    state->linear.x = state->raw.x - state->gravity.x;
+    state->linear.y = state->raw.y - state->gravity.y;
+    state->linear.z = state->raw.z - state->gravity.z;
+}
 
 void printWiFiStatus() {
   Serial.print("SSID: ");
@@ -83,32 +133,30 @@ String macAddressToCString(unsigned char* macAddress) {
         String(macAddress[0], HEX);
 }
 
-float normalizeAccelerationValue(float value) {
+float normalize(float value) {
   // Nano 33 IoT IMU reports accelerometer values between -4 and 4g.
   // Scale it to between -1.0 and 1.0.
   return value * 0.25;
 }
 
 void loop() {
-    float accelX = 0.0f;
-    float accelY = 0.0f;
-    float accelZ = 0.0f;
-
     if (IMU.accelerationAvailable()) {
-        IMU.readAcceleration(accelX, accelY, accelZ);
-        accelX = normalizeAccelerationValue(accelX);
-        accelY = normalizeAccelerationValue(accelY);
-        accelZ = normalizeAccelerationValue(accelZ);
+        IMU.readAcceleration(accelState.raw.x, accelState.raw.y,
+            accelState.raw.z);
+        updateLinearValues(&accelState, gravityCoeff);
     }
 
-    Serial.print(accelX);
+    Serial.print(accelState.linear.x);
     Serial.print(", ");
-    Serial.print(accelY);
+    Serial.print(accelState.linear.y);
     Serial.print(", ");
-    Serial.println(accelZ);
+    Serial.println(accelState.linear.z);
 
     OSCMessage msg(oscAddress);
-    msg.add(macAddress.c_str()).add(accelX).add(accelY).add(accelZ);
+    msg.add(macAddress.c_str())
+        .add(normalize(accelState.linear.x))
+        .add(normalize(accelState.linear.y))
+        .add(normalize(accelState.linear.z));
 
     udp.beginPacket(oscServerIP, oscServerPort);
     msg.send(udp);

@@ -5,8 +5,8 @@
     "author": "Colin Clark",
     "main": "main.js",
     "dependencies": {
-        "infusion": "4.0.0-dev.20211216T153607Z.0104629aa",
-        "infusion-electron": "0.9.0",
+        "infusion": "3.0.0",
+        "infusion-electron": "0.8.1",
         "osc": "2.4.2"
     },
     "devDependencies": {
