@@ -4,16 +4,16 @@
 #include <OSCMessage.h>
 #include "arduino_secrets.h"
 
-struct TriAxisState {
+struct Point3D {
     float x;
     float y;
     float z;
 };
 
 struct AccelerometerState {
-    struct TriAxisState raw;
-    struct TriAxisState linear;
-    struct TriAxisState gravity;
+    struct Point3D raw;
+    struct Point3D gravity;
+    struct Point3D linear;
 };
 
 unsigned int FREQUENCY = 10;
@@ -39,31 +39,36 @@ struct AccelerometerState accelState = {
         .z = 0.0f
     },
 
-    .linear = {
+    .gravity = {
         .x = 0.0f,
         .y = 0.0f,
         .z = 0.0f
     },
 
-    .gravity = {
+    .linear = {
         .x = 0.0f,
         .y = 0.0f,
         .z = 0.0f
     }
 };
 
-float gravityLowPass(float raw, float previousGravity, float coeff) {
+float gravity(float raw, float previousGravity, float coeff) {
     return coeff * previousGravity + (1.0f - coeff) * raw;
 }
 
-void updateGravity(struct AccelerometerState* state, float coeff) {
-    state->gravity.x = gravityLowPass(state->raw.x, state->gravity.x, coeff);
-    state->gravity.y = gravityLowPass(state->raw.y, state->gravity.y, coeff);
-    state->gravity.z = gravityLowPass(state->raw.z, state->gravity.z, coeff);
+void extractGravities(struct AccelerometerState* state, float coeff) {
+    state->gravity.x = gravity(state->raw.x, state->gravity.x, coeff);
+    state->gravity.y = gravity(state->raw.y, state->gravity.y, coeff);
+    state->gravity.z = gravity(state->raw.z, state->gravity.z, coeff);
 }
 
-void updateLinearValues(struct AccelerometerState* state, float coeff) {
-    updateGravity(state, coeff);
+void linearize(struct AccelerometerState* state, float coeff) {
+    // This is essentially a simple DC blocking highpass filter:
+    //   - Run a low pass filter on the signal to isolate gravity on each axis
+    //   - Subtract gravity from the signal to obtain only
+    //     the high frequency changes (i.e. the acceleration)
+    // See: https://www.earlevel.com/main/2012/12/15/a-one-pole-filter/
+    extractGravities(state, coeff);
     state->linear.x = state->raw.x - state->gravity.x;
     state->linear.y = state->raw.y - state->gravity.y;
     state->linear.z = state->raw.z - state->gravity.z;
@@ -143,14 +148,15 @@ void loop() {
     if (IMU.accelerationAvailable()) {
         IMU.readAcceleration(accelState.raw.x, accelState.raw.y,
             accelState.raw.z);
-        updateLinearValues(&accelState, gravityCoeff);
+
+        linearize(&accelState, gravityCoeff);
     }
 
-    Serial.print(accelState.linear.x);
-    Serial.print(", ");
-    Serial.print(accelState.linear.y);
-    Serial.print(", ");
-    Serial.println(accelState.linear.z);
+    // Serial.print(accelState.linear.x);
+    // Serial.print(", ");
+    // Serial.print(accelState.linear.y);
+    // Serial.print(", ");
+    // Serial.println(accelState.linear.z);
 
     OSCMessage msg(oscAddress);
     msg.add(macAddress.c_str())
