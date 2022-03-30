@@ -1,12 +1,26 @@
 body {
     color: #fff;
     font-family: sans-serif;
+    padding-left: 0.5rem;
 }
 
 #network-interfaces {
     font-family: monospace
 }
 
-.leaf {
+h2.leaf-name {
+    margin-bottom: 0.75rem;
+}
+
+.leaf-axis-label {
+    padding-left: 1rem;
+}
+
+.leaf-axis {
     display: grid;
+    grid-template-columns: 2% 8% 5% 5% 5%;
+}
+
+.leaf-axis-value {
+    font-family: 'Source Code Pro', monospace;
 }

@@ -1,8 +1,5 @@
 /*
-Copyright 2022 Colin Clark
-
-Licensed under the MIT license.
-https://github.com/colinbdclark/bubbles/raw/master/LICENSE
+Copyright 2022 Colin Clark. Distributed under the MIT license.
 */
 
 let os = electron.nodeIntegration.require("os");

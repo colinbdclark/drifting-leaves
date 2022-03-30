@@ -1,20 +1,23 @@
 /*
-Copyright 2022 Colin Clark
-
-Licensed under the MIT license.
-https://github.com/colinbdclark/bubbles/raw/master/LICENSE
+Copyright 2022 Colin Clark. Distributed under the MIT license.
 */
 
 "use strict";
 
 fluid.defaults("driftingLeaves.branches", {
-    gradeNames: ["bubbles.oscSource"],
+    gradeNames: ["driftingLeaves.oscModelComponent"],
 
     leafNames: {
         "3c6151611bc": "Oak",
         "7c9ebdf93f84": "Maple",
         "7c9ebd3ad2c8": "Poplar",
-        "84cca8783ffc": "Aspen"
+        "84cca8783ffc": "Aspen",
+        "7c9ebd3ad2b4": "Birch",
+        "7c9ebd3ab7b0": "Pine",
+        "7c9ebd3ad2c4": "Cedar",
+        "9c9c1fc17118": "Juniper",
+        "7c9ebd3ad238": "Fir",
+        "3c61516d98": "Larch"
     },
 
     model: {
@@ -59,6 +62,14 @@ fluid.defaults("driftingLeaves.branches", {
                     // a Leaf has disappeared from the network.
                 }
             }
+        },
+
+        bubblesOSCTarget: {
+            type: "driftingLeaves.bubblesOSCTarget"
+        },
+
+        vcvRackOSCTarget: {
+            type: "driftingLeaves.vcvRackOSCTarget"
         }
     },
 
@@ -67,7 +78,7 @@ fluid.defaults("driftingLeaves.branches", {
     },
 
     listeners: {
-        "onCreate.openOSCPort": "{oscSource}.oscPort.open()",
+        "onCreate.openPort": "{oscPort}.open()",
 
         "onMessage.modelizeOSC": {
             funcName: "driftingLeaves.branches.modelizeOSCMessage",
@@ -91,9 +102,15 @@ driftingLeaves.branches.modelizeOSCMessage = function (that, leafNames, msg) {
     let macAddress = msg.args[0];
     that.applier.change(macAddress, {
         macAddress: macAddress,
-        displayName: leafNames[macAddress] || "Unknown Leaf",
-        x: msg.args[1],
-        y: msg.args[2],
-        z: msg.args[3]
+        displayName: leafNames[macAddress] || macAddress,
+        x: {
+            value: msg.args[1]
+        },
+        y: {
+            value: msg.args[2]
+        },
+        z: {
+            value: msg.args[3]
+        }
     });
 };

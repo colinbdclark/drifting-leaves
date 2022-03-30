@@ -1,8 +1,5 @@
 /*
-Copyright 2022 Colin Clark
-
-Licensed under the MIT license.
-https://github.com/colinbdclark/bubbles/raw/master/LICENSE
+Copyright 2022 Colin Clark. Distributed under the MIT license.
 */
 
 // TODO: Bind knobs to model.
@@ -35,8 +32,8 @@ fluid.defaults("driftingLeaves.leafView", {
     },
 
     markup: {
-        leafHeader: "<h2 class='leaf-name'>%displayName</h2>",
-        leafAxisContainer: "<div class='leaf-axis %axis'>\
+        leafHeader: "<div class='grid-header row'><h2 class='leaf-name'>%displayName</h2></div>",
+        leafAxisContainer: "<div class='row leaf-axis %axis'>\
             <span class='leaf-axis-label'>%axis</span>\
         </div>"
     }
