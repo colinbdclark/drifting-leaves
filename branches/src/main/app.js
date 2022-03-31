@@ -14,7 +14,15 @@ fluid.defaults("driftingLeaves.app", {
     components: {
         mainWindow: {
             createOnEvent: "onReady",
-            type: "driftingLeaves.mainWindow"
+            type: "driftingLeaves.mainWindow",
+            options: {
+                 listeners: {
+                    "onReadyToShow.maximize": {
+                        "this": "{that}.win",
+                        method: "maximize"
+                    }
+                }
+            }
         }
     }
 });

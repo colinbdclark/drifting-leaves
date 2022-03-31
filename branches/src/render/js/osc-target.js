@@ -9,6 +9,10 @@ var driftingLeaves = fluid.registerNamespace("driftingLeaves");
 fluid.defaults("driftingLeaves.oscTarget", {
     gradeNames: "driftingLeaves.oscModelComponent",
 
+    oscPortOptions: {
+        metadata: true
+    },
+
     message: {
         args: [
             {
@@ -16,5 +20,28 @@ fluid.defaults("driftingLeaves.oscTarget", {
                 value: 0.0
             }
         ]
+    },
+
+    invokers: {
+        sendValue: {
+            funcName: "driftingLeaves.oscTarget.sendValue",
+            args: [
+                "{that}",
+                "{arguments}.0", // Address
+                "{arguments}.1"  // Value
+            ]
+        }
     }
 });
+
+driftingLeaves.oscTarget.sendValue = function (that, address, value) {
+    // "" is falsey in JS.
+    if (!address) {
+        return;
+    }
+
+    let msg = fluid.copy(that.options.message);
+    msg.address = address;
+    msg.args[0].value = value;
+    that.oscPort.send(msg);
+};

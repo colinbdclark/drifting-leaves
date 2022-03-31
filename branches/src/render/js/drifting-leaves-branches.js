@@ -28,11 +28,14 @@ fluid.defaults("driftingLeaves.branches", {
             y: 1.0,
             z: -1.0,
             scale: 1.0,
-            offset: 0.0
+            offset: 0.0,
+            rectify: 0
         }
         */
     },
 
+    // Note: This is the OSC Source Port's options.
+    // TODO: Move the OSC Source out as a child subcomponent
     oscPortOptions: {
         localAddress: "0.0.0.0",
         localPort: 57121
@@ -64,22 +67,32 @@ fluid.defaults("driftingLeaves.branches", {
             }
         },
 
-        bubblesOSCTarget: {
-            type: "driftingLeaves.bubblesOSCTarget"
-        },
+        oscTargetDispatcher: {
+            type: "driftingLeaves.oscTargetDispatcher",
+            options: {
+                components: {
+                    bubbles:  {
+                        type: "driftingLeaves.bubblesOSCTarget"
+                    },
 
-        vcvRackOSCTarget: {
-            type: "driftingLeaves.vcvRackOSCTarget"
+                    vcvRack: {
+                        type: "driftingLeaves.vcvRackOSCTarget"
+                    }
+                },
+
+                events: {
+                    onSendValue: "{branches}.events.onSendLeafValue"
+                }
+            }
         }
     },
 
     events: {
-        onAddNewLeaf: null
+        onAddNewLeaf: null,
+        onSendLeafValue: null
     },
 
     listeners: {
-        "onCreate.openPort": "{oscPort}.open()",
-
         "onMessage.modelizeOSC": {
             funcName: "driftingLeaves.branches.modelizeOSCMessage",
             args: [

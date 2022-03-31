@@ -12,15 +12,29 @@ h2.leaf-name {
     margin-bottom: 0.75rem;
 }
 
+.leaf-axis {
+    display: grid;
+    grid-template-columns: 2rem 7rem 32px 64px 64px 8rem 20rem;
+    height: 2.25rem;
+    align-items: center;
+    text-align: center;
+}
+
 .leaf-axis-label {
     padding-left: 1rem;
 }
 
-.leaf-axis {
-    display: grid;
-    grid-template-columns: 2% 8% 5% 5% 5%;
-}
-
 .leaf-axis-value {
     font-family: 'Source Code Pro', monospace;
+    font-size: 150%;
+}
+
+.leaf-axis-target {
+    background-color: #333;
+    color: #fff;
+    height: 75%;
+}
+
+.leaf-axis-target-address {
+    margin-left: 1em;
 }

@@ -16,8 +16,5 @@ fluid.defaults("bubbles.oscUDPPort", {
 
     oscPortType: "osc.UDPPort",
 
-    oscPortOptions: {
-        localAddress: "0.0.0.0",
-        localPort: 57122
-    }
+    oscPortOptions: {}
 });

@@ -26,6 +26,12 @@ fluid.defaults("bubbles.oscPort", {
         open: {
             "this": "{that}.rawOSCPort",
             method: "open"
+        },
+
+        send: {
+            "this": "{that}.rawOSCPort",
+            method: "send",
+            args: ["{arguments}.0"]
         }
     },
 

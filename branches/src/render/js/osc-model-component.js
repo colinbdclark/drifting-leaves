@@ -12,10 +12,7 @@ var driftingLeaves = fluid.registerNamespace("driftingLeaves");
 fluid.defaults("driftingLeaves.oscModelComponent", {
     gradeNames: "fluid.modelComponent",
 
-    oscPortOptions: {
-        localAddress: "0.0.0.0",
-        localPort: 57122
-    },
+    oscPortOptions: {},
 
     components: {
         oscPort: {
@@ -35,5 +32,9 @@ fluid.defaults("driftingLeaves.oscModelComponent", {
         onReady: null,
         onMessage: null,
         onError: null
+    },
+
+    listeners: {
+        "onCreate.openPort": "{oscPort}.open()"
     }
 });
