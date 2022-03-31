@@ -22,7 +22,7 @@ fluid.defaults("driftingLeaves.bubblesOSCTarget", {
         localAddress: "127.0.0.1",
         localPort: 57124,
 
-        remoteAddress: "127.0.0.1",
+        remoteAddress: "192.168.1.101",
         remotePort: 57122
     }
 });
