@@ -2,6 +2,8 @@
 Copyright 2022 Colin Clark. Distributed under the MIT license.
 */
 
+"use strict";
+
 // TODO: Bind knobs to model.
 fluid.defaults("driftingLeaves.leafView", {
     gradeNames: "fluid.viewComponent",
@@ -14,8 +16,20 @@ fluid.defaults("driftingLeaves.leafView", {
             container: "{arguments}.1",
             type: "driftingLeaves.leafAxisView",
             options: {
-                model: "{leafView}.model",
-                axis: "{arguments}.0"
+                axis: "{arguments}.0",
+                modelRelay: {
+                    source: {
+                        context: "leafView",
+                        segs: [
+                            "{that}.options.axis"
+                        ]
+                    },
+                    target: "",
+                    singleTransform: {
+                        type: "fluid.transforms.identity"
+                    }
+                }
+
             }
         }
     },

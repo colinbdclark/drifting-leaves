@@ -2,6 +2,8 @@
 Copyright 2022 Colin Clark. Distributed under the MIT license.
 */
 
+"use strict";
+
 fluid.defaults("driftingLeaves.oscSourceView", {
     gradeNames: ["fluid.viewComponent"],
 

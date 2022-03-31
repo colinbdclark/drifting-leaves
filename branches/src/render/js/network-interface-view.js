@@ -2,6 +2,8 @@
 Copyright 2022 Colin Clark. Distributed under the MIT license.
 */
 
+"use strict";
+
 let os = electron.nodeIntegration.require("os");
 
 fluid.defaults("driftingLeaves.networkInterfaceView", {

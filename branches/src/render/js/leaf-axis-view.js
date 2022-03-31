@@ -2,27 +2,60 @@
 Copyright 2022 Colin Clark. Distributed under the MIT license.
 */
 
+"use strict";
+
 fluid.defaults("driftingLeaves.leafAxisView", {
     gradeNames: "fluid.viewComponent",
 
-    axis: "x",
+    axis: undefined,
 
-    defaultAxisValues: {
+    model: {
         scale: 1.0,
         offset: 0.0,
         rectify: 0,
         target: "none",
-        address: ""
+        address: "/ch/1",
+        formattedValue: "+0.000",
+        transformedValue: 0.0
     },
 
+    modelRelay: [
+        {
+            namespace: "displayFormatValue",
+            target: "formattedValue",
+            singleTransform: {
+                type: "fluid.transforms.free",
+                func: "driftingLeaves.leafAxisView.displayFormatValue",
+                args: ["{that}.model.value"]
+            }
+        },
+        {
+            namespace: "transformValue",
+            target: "transformedValue",
+            singleTransform: {
+                type: "fluid.transforms.free",
+                func: "driftingLeaves.leafAxisView.transformValue",
+                args: [
+                    "{that}.model.value",
+                    "{that}"
+                ]
+            }
+        }
+    ],
+
     modelListeners: {
-        "*": {
-            funcName: "driftingLeaves.leafAxisView.refreshView",
+        formattedValue: {
+            "this": "{that}.dom.value",
+            method: "text",
+            args: "{change}.value"
+        },
+
+        transformedValue: {
+            func: "{branches}.events.onSendValue.fire",
             args: [
-                "{that}",
-                "{that}.options.axis",
-                "{that}.dom.value",
-                "{change}"
+                "{that}.model.target",
+                "{that}.model.address",
+                "{change}.value"
             ]
         }
     },
@@ -31,21 +64,32 @@ fluid.defaults("driftingLeaves.leafAxisView", {
         targetView: {
             createOnEvent: "afterRender",
             type: "driftingLeaves.leafAxisTargetView",
-            container: "{leafAxisView}.container"
+            container: "{leafAxisView}.container",
+            options: {
+                model: {
+                    target: "{leafAxisView}.model.target",
+                    address: "{leafAxisView}.model.address"
+                }
+            }
+        },
+
+        expressionView: {
+            createOnEvent: "afterRender",
+            type: "driftingLeaves.leafAxisExpressionView",
+            container: "{leafAxisView}.dom.expression",
+            options: {
+                model: {
+                    axis: "{leafAxisView}.model"
+                }
+            }
         }
     },
 
     events: {
-        afterRender: null,
-        onSendLeafValue: "{branches}.events.onSendLeafValue"
+        afterRender: null
     },
 
     listeners: {
-        "onCreate.setDefaultModelValues": {
-            funcName: "driftingLeaves.leafAxisView.setDefaultModelValues",
-            args: ["{that}"]
-        },
-
         "onCreate.renderRow": {
             funcName: "driftingLeaves.leafAxisView.renderRow",
             args: ["{that}"]
@@ -53,20 +97,20 @@ fluid.defaults("driftingLeaves.leafAxisView", {
 
         "onCreate.bindScaleKnob": {
             priority: "after:renderRow",
-            funcName: "driftingLeaves.leafAxisView.bindControl",
-            args: ["{that}", "{that}.options.axis", "scale"]
+            funcName: "driftingLeaves.leafAxisView.bindControlChange",
+            args: ["{that}", "scale"]
         },
 
         "onCreate.bindOffsetKnob": {
             priority: "after:renderRow",
-            funcName: "driftingLeaves.leafAxisView.bindControl",
-            args: ["{that}", "{that}.options.axis", "offset"]
+            funcName: "driftingLeaves.leafAxisView.bindControlChange",
+            args: ["{that}", "offset"]
         },
 
         "onCreate.bindRectifySwitch": {
             priority: "after:renderRow",
-            funcName: "driftingLeaves.leafAxisView.bindControl",
-            args: ["{that}", "{that}.options.axis", "rectify"]
+            funcName: "driftingLeaves.leafAxisView.bindControlChange",
+            args: ["{that}", "rectify"]
         }
     },
 
@@ -74,7 +118,8 @@ fluid.defaults("driftingLeaves.leafAxisView", {
         value: ".leaf-axis-value",
         scale: ".leaf-axis-scale",
         offset: ".leaf-axis-offset",
-        rectify: ".leaf-axis-rectify"
+        rectify: ".leaf-axis-rectify",
+        expression: ".leaf-axis-expression",
     },
 
     markup: {
@@ -83,61 +128,43 @@ fluid.defaults("driftingLeaves.leafAxisView", {
         <webaudio-knob class='leaf-axis-scale' diameter='32' min='-2.0' max='4.0' value='%scale' step='0.01' tooltip='Scale %s' outline='1' colors='#e00;#333;#fff'></webaudio-knob> \
         <webaudio-knob class='leaf-axis-offset' diameter='32' min='-1.0' max='1.0' value='%offset' step='0.01' tooltip='Offset %s' outline='1' colors='#e00;#333;#fff'></webaudio-knob> \
         <select class='leaf-axis-target-select' outline='1'></select>\
-        <input class='leaf-axis-target-address' value='/ch/1' type='text'>"
+        <input class='leaf-axis-target-address' value='/ch/1' type='text'>\
+        <textarea class='leaf-axis-expression' rows='1'></textarea>"
     }
 });
 
-driftingLeaves.leafAxisView.setDefaultModelValues = function (that) {
-    that.applier.change(that.options.axis, that.options.defaultAxisValues);
-};
-
 driftingLeaves.leafAxisView.renderRow = function (that) {
-    let rowMarkup = fluid.stringTemplate(that.options.markup.row,
-        that.model[that.options.axis]);
+    let rowMarkup = fluid.stringTemplate(that.options.markup.row, that.model);
     that.container.append(rowMarkup);
     that.events.afterRender.fire();
 };
 
-driftingLeaves.leafAxisView.bindControl = function (that, axis, parameter) {
+driftingLeaves.leafAxisView.bindControlChange = function (that, parameter) {
     that.locate(parameter)[0].addEventListener("change", function (event) {
-        that.applier.change([axis, parameter], event.target.value);
+        that.applier.change(parameter, event.target.value);
     });
 };
 
-driftingLeaves.leafAxisView.transformValue = function (that, target,
-    address, axisModel, value) {
-    value = !!axisModel.rectify ? Math.abs(value) : value;
-    let transformedValue = value *
-        axisModel.scale + axisModel.offset;
+driftingLeaves.leafAxisView.displayFormatValue = function (value) {
+    let rounded = (Math.round((value + Number.EPSILON) * 1000) / 1000).toFixed(3);
+    let formatted = rounded >= 0 ? "+" + String(rounded) : String(rounded);
 
-    that.events.onSendLeafValue.fire(target, address,
-        transformedValue);
+    return formatted;
 };
 
-driftingLeaves.leafAxisView.refreshView = function (that, axis, valueEl, change) {
-    if (change.path[0] === axis) {
-        let rounded = (Math.round(
-            (change.value.value + Number.EPSILON) * 1000) / 1000).toFixed(3);
-        let formatted = rounded >= 0 ? "+" + String(rounded) : String(rounded);
-
-        if (valueEl.text() != formatted) {
-            valueEl.text(formatted);
-        }
-
-        // TODO: Refactor this as a model relay;
-        // requires us to split up the model
-        // so it is scoped only to this component,
-        // which would vastly simply other logic too.
-        if (that.targetView) {
-            let target = that.targetView.targetSelector.model.selection;
-            let address = that.targetView.locate("address").val();
-
-            if (target === "none" || !address) {
-                return;
-            }
-
-            driftingLeaves.leafAxisView.transformValue(that, target, address,
-                that.model[axis], change.value.value);
-        }
+driftingLeaves.leafAxisView.transformValue = function (value, that) {
+    if (!that.model) {
+        return;
     }
+
+    if (that.model.rectify === 1) {
+        value = Math.abs(value);
+    }
+
+    let transformedValue = value *
+        that.model.scale + that.model.offset;
+    transformedValue = that.expressionView.model.isValid ?
+        that.expressionView.model.result : transformedValue;
+
+    return transformedValue;
 };

@@ -81,7 +81,7 @@ fluid.defaults("driftingLeaves.branches", {
                 },
 
                 events: {
-                    onSendValue: "{branches}.events.onSendLeafValue"
+                    onSendValue: "{branches}.events.onSendValue"
                 }
             }
         }
@@ -89,7 +89,7 @@ fluid.defaults("driftingLeaves.branches", {
 
     events: {
         onAddNewLeaf: null,
-        onSendLeafValue: null
+        onSendValue: null
     },
 
     listeners: {
