@@ -10,10 +10,12 @@
         "osc": "2.4.2"
     },
     "devDependencies": {
-        "electron": "17.1.0",
+        "electron": "18.0.1",
         "electron-packager": "15.4.0"
     },
     "scripts": {
-        "app": "node_modules/.bin/electron ."
+        "app": "node_modules/.bin/electron .",
+        "package-mac-intel": "node_modules/.bin/electron-packager ./ --platform=darwin --arch=x64 --out=./dist --overwrite",
+        "package-mac-arm": "node_modules/.bin/electron-packager ./ --platform=darwin --arch=arm64 --out=./dist --overwrite"
     }
 }

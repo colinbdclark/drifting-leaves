@@ -23,7 +23,7 @@ float gravityCoeff = 0.8f;
 char wifiSSID[] = SECRET_WIFI_SSID;
 char wifiPassword[] = SECRET_WIFI_PASSWORD;
 
-IPAddress oscServerIP = IPAddress(192, 168, 1, 116);
+IPAddress oscServerIP = IPAddress(192, 168, 1, 100);
 unsigned int oscServerPort = 57121;
 unsigned int localPort = oscServerPort;
 
