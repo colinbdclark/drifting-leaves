@@ -10,7 +10,7 @@
         "osc": "2.4.2"
     },
     "devDependencies": {
-        "electron": "18.0.1",
+        "electron": "17.3.1",
         "electron-packager": "15.4.0"
     },
     "scripts": {

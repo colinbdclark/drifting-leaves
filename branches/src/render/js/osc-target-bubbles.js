@@ -16,10 +16,7 @@ fluid.defaults("driftingLeaves.bubblesOSCTarget", {
     },
 
     oscPortOptions: {
-        // TODO: Issue in osc.js.
-        // Why do I have to bind to a local port
-        // just to send a message?
-        localAddress: "127.0.0.1",
+        localAddress: "0.0.0.0",
         localPort: 57124,
 
         remoteAddress: "192.168.1.101",
