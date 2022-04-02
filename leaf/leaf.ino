@@ -16,7 +16,7 @@ struct AccelerometerState {
     struct Point3D linear;
 };
 
-unsigned int FREQUENCY = 10;
+unsigned int FREQUENCY = 24;
 unsigned int MESSAGE_DELAY_TIME = 1000 / FREQUENCY;
 float gravityCoeff = 0.8f;
 
