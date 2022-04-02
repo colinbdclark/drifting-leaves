@@ -19,7 +19,7 @@ fluid.defaults("driftingLeaves.vcvRackOSCTarget", {
         localAddress: "0.0.0.0",
         localPort: 57125,
 
-        remoteAddress: "127.0.0.1",
+        remoteAddress: "192.168.1.100",
         remotePort: 57123
     }
 });
