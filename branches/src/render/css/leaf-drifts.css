@@ -23,7 +23,7 @@ h2.leaf-name {
 
 .leaf-axis {
     display: grid;
-    grid-template-columns: 2rem 4rem 32px 36px 36px 6rem 10rem 13rem;
+    grid-template-columns: 2rem 4rem 32px 36px 36px 6rem 10rem 15rem;
     height: 2.1rem;
     align-items: center;
     text-align: center;

@@ -125,8 +125,8 @@ fluid.defaults("driftingLeaves.leafAxisView", {
     markup: {
         row: "<span class='leaf-axis-value'>0.0</span>\
         <webaudio-switch class='leaf-axis-rectify' diameter='24' type='toggle' value='%rectify' tooltip='Rectify'></webaudio-switch>\
-        <webaudio-knob class='leaf-axis-scale' diameter='32' min='-2.0' max='4.0' value='%scale' step='0.01' tooltip='Scale %s' outline='1' colors='#e00;#333;#fff'></webaudio-knob> \
-        <webaudio-knob class='leaf-axis-offset' diameter='32' min='-1.0' max='1.0' value='%offset' step='0.01' tooltip='Offset %s' outline='1' colors='#e00;#333;#fff'></webaudio-knob> \
+        <webaudio-knob class='leaf-axis-scale' diameter='32' min='-8.0' max='10.0' value='%scale' step='0.01' tooltip='Scale %s' outline='1' colors='#e00;#333;#fff'></webaudio-knob> \
+        <webaudio-knob class='leaf-axis-offset' diameter='32' min='-2.0' max='2.0' value='%offset' step='0.01' tooltip='Offset %s' outline='1' colors='#e00;#333;#fff'></webaudio-knob> \
         <select class='leaf-axis-target-select' outline='1'></select>\
         <input class='leaf-axis-target-address' value='/ch/1' type='text'>\
         <textarea class='leaf-axis-expression' rows='1'></textarea>"
@@ -163,8 +163,11 @@ driftingLeaves.leafAxisView.transformValue = function (value, that) {
 
     let transformedValue = value *
         that.model.scale + that.model.offset;
-    transformedValue = that.expressionView.model.isValid ?
-        that.expressionView.model.result : transformedValue;
 
-    return transformedValue;
+    if (that.expressionView.model.expression) {
+        that.expressionView.eval();
+    }
+
+    return that.expressionView.model.isValid ?
+        that.expressionView.model.result : transformedValue;
 };

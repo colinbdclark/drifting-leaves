@@ -9,12 +9,19 @@ fluid.defaults("driftingLeaves.leafAxisExpressionView", {
 
     model: {
         axis: undefined,
+        expression: "",
         isValid: false,
         result: undefined
     },
 
+    invokers: {
+        eval: {
+            funcName: "driftingLeaves.leafAxisExpressionView.eval",
+            args: ["{that}"]
+        }
+    },
+
     events: {
-        onChange: null,
         onParseError: null
     },
 
@@ -28,25 +35,21 @@ fluid.defaults("driftingLeaves.leafAxisExpressionView", {
             "this": "console",
             method: "log",
             args: ["{arguments}.0"]
-        },
-
-        "onChange.eval": {
-            funcName: "driftingLeaves.leafAxisExpressionView.eval",
-            args: ["{that}", "{arguments}.0", "???"]
         }
     }
 });
 
 driftingLeaves.leafAxisExpressionView.bindChange = function (that) {
     that.container[0].addEventListener("change", function (e) {
-        that.events.onChange.fire(e.target.value);
+        that.applier.change("expression", e.target.value);
     });
 };
 
-driftingLeaves.leafAxisExpressionView.eval = function (that, expression) {
+// TODO: Separate the creation of the eval function from invoking it.
+driftingLeaves.leafAxisExpressionView.eval = function (that) {
     // Bone-headed globally-scoped eval with the axis model
     // bound to "this".
-    let fullExpr = "\"use strict\"; return " + expression + ";"
+    let fullExpr = "\"use strict\"; return " + that.model.expression + ";"
     try {
         let exprFn = Function(fullExpr);
         let boundFn = exprFn.bind(that.model.axis);
